@@ -882,9 +882,10 @@
             <div class="eyebrow">Newsletter</div>
             <h3>Clear research, delivered thoughtfully.</h3>
             <p>Company analysis, decision frameworks, and lessons from managing real capital—without daily noise or promotional hype.</p>
-            <form class="subscribe-form" onsubmit="event.preventDefault(); document.getElementById('newsletter-message').textContent='Thank you — newsletter integration can be connected to your email platform.';">
-              <input type="text" placeholder="First name" aria-label="First name" />
-              <input type="email" placeholder="Email address" aria-label="Email address" required />
+            <form class="subscribe-form" action="https://formspree.io/f/xjgndovp" method="POST" onsubmit="return handleFormSubmit(event, 'newsletter-message', 'Thank you for subscribing — we will be in touch.');">
+              <input type="hidden" name="form-type" value="Newsletter signup" />
+              <input type="text" name="First name" placeholder="First name" aria-label="First name" />
+              <input type="email" name="Email address" placeholder="Email address" aria-label="Email address" required />
               <button class="button button-primary" type="submit">Join the newsletter</button>
               <div class="form-note">By subscribing, you agree to receive email from CrystalWell. Unsubscribe anytime.</div>
               <div id="newsletter-message" class="form-note" aria-live="polite"></div>
@@ -895,11 +896,12 @@
             <div class="eyebrow">Contact</div>
             <h3>Start a conversation.</h3>
             <p>Use this form for general questions, feedback, media inquiries, or potential collaborations. Please do not send trade instructions or sensitive financial information.</p>
-            <form class="contact-form" onsubmit="event.preventDefault(); document.getElementById('contact-message').textContent='Thank you — the contact form can be connected to your preferred inbox or form service.';">
-              <input type="text" placeholder="Your name" aria-label="Your name" required />
-              <input type="email" placeholder="Email address" aria-label="Email address" required />
-              <input type="text" placeholder="Subject" aria-label="Subject" />
-              <textarea placeholder="Message" aria-label="Message" required></textarea>
+            <form class="contact-form" action="https://formspree.io/f/xjgndovp" method="POST" onsubmit="return handleFormSubmit(event, 'contact-message', 'Thank you — your message has been sent.');">
+              <input type="hidden" name="form-type" value="Contact form" />
+              <input type="text" name="Your name" placeholder="Your name" aria-label="Your name" required />
+              <input type="email" name="Email address" placeholder="Email address" aria-label="Email address" required />
+              <input type="text" name="Subject" placeholder="Subject" aria-label="Subject" />
+              <textarea name="Message" placeholder="Message" aria-label="Message" required></textarea>
               <button class="button button-primary" type="submit">Send message</button>
               <div id="contact-message" class="form-note" aria-live="polite"></div>
             </form>
@@ -967,5 +969,38 @@
       <div class="copyright">© 2026 CrystalWell Analytics LLC. All rights reserved.</div>
     </div>
   </footer>
+  <script>
+    function handleFormSubmit(event, messageId, successText) {
+      event.preventDefault();
+      const form = event.target;
+      const messageEl = document.getElementById(messageId);
+      const button = form.querySelector('button[type="submit"]');
+      const originalButtonText = button.textContent;
+
+      button.disabled = true;
+      button.textContent = 'Sending...';
+      messageEl.textContent = '';
+
+      fetch(form.action, {
+        method: 'POST',
+        body: new FormData(form),
+        headers: { 'Accept': 'application/json' }
+      }).then(response => {
+        if (response.ok) {
+          messageEl.textContent = successText;
+          form.reset();
+        } else {
+          messageEl.textContent = 'Something went wrong. Please try again or email us directly.';
+        }
+      }).catch(() => {
+        messageEl.textContent = 'Something went wrong. Please try again or email us directly.';
+      }).finally(() => {
+        button.disabled = false;
+        button.textContent = originalButtonText;
+      });
+
+      return false;
+    }
+  </script>
 </body>
 </html>
